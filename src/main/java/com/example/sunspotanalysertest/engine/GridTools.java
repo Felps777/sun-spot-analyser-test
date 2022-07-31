@@ -1,6 +1,7 @@
 package com.example.sunspotanalysertest.engine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -8,22 +9,24 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 
 import com.example.sunspotanalysertest.apirest.dto.ScoreDTO;
-import com.example.sunspotanalysertest.persistence.GridsEntity;
+import com.example.sunspotanalysertest.persistence.GridEntity;
 
 @Component
 public class GridTools {
 
-	public List<ScoreDTO> calculateScores(GridsEntity entity) {
+	public List<ScoreDTO> calculateScores(GridEntity entity, final boolean printMatrix) {
 
-		int numRows = (entity.getLinearMatrix().length / entity.getSize()) > 0 ? entity.getSize() + 1
-				: entity.getSize(); // entity.getLinearMatrix().length / entity.getSize();
+		int numRows = calcNumRowsFor2dMatrix(entity.getLinearMatrix().length, entity.getSize());
+
 		List<ScoreDTO> result = new ArrayList<>();
-		int[][] matrix2d = transformLinearMatrixTo2DMatrix(entity.getLinearMatrix(), entity.getSize());
+//		int[][] matrix2d = transformLinearMatrixTo2DMatrix(entity.getLinearMatrix(), entity.getSize());
+		int[][] matrix2d = transform1DArrayTo2D(entity.getLinearMatrix(), entity.getSize());
 		int[][] matrix2dResult = new int[numRows][entity.getSize()];
 
-		System.out.println(printPrettyMatrix(matrix2d, "SOURCE 2D MATRIX"));
-
-		System.out.println("----------------------------");
+		if (printMatrix) {
+			System.out.println(printPrettyMatrix(matrix2d, "SOURCE 2D MATRIX"));
+			System.out.println("----------------------------");
+		}
 		// for each x,y position/cell, we calculates the score
 		for (int x = 0; x < matrix2d.length; x++) {
 			for (int y = 0; y < entity.getSize(); y++) {
@@ -31,12 +34,13 @@ public class GridTools {
 				result.add(ScoreDTO.builder().x(x).y(y).score(matrix2dResult[x][y]).build());
 			}
 		}
-		System.out.println("----------------------------");
 
-		System.out.println(printPrettyMatrix(matrix2dResult, "CALCULATED 2D MATRIX"));
+		if (printMatrix) {
+			System.out.println("----------------------------");
+			System.out.println(printPrettyMatrix(matrix2dResult, "CALCULATED 2D MATRIX"));
+		}
 
 		return result;
-
 	}
 
 	/**
@@ -76,7 +80,7 @@ public class GridTools {
 
 	}
 
-	public List<Integer> transform2DmatrixToList(int[][] matrix) {
+	public List<Integer> transform2DmatrixToList(final int[][] matrix) {
 
 		ArrayList<Integer> arrList = new ArrayList<>(matrix.length * 2);
 		for (int[] array : matrix) {
@@ -85,57 +89,38 @@ public class GridTools {
 		return arrList;
 	}
 
-	public int[][] transformLinearMatrixTo2DMatrix(final int[] linearMatrix, final int size) {
-
-		int numRows = (linearMatrix.length % size) > 0 ? size + 1 : size;
+//	public int[][] transformLinearMatrixTo2DMatrix(final int[] linearMatrix, final int size) {
+//
+//		int numRows = calcNumRowsFor2dMatrix(linearMatrix.length, size);
+//		int[] temp = new int[size];
 //		int[][] matrix2D = new int[numRows][size];
 //
-//		// Integer[][] result = new Integer[numRows][dto.getSize()];
-//		int x;
-//		int y;
-//		for (int num = 0; num < linearMatrix.length; num++) {
-//			if ((num % size) > 0) {
-//				x = num / numRows;
-//				y = num % numRows;
+//		for (int i = 0; i < linearMatrix.length; i++) {
+//			temp[i % size] = linearMatrix[i];
 //
-//			} else {
-//				x = num / numRows;
-//				y = 0;
+//			// this means the line is over
+//			if (((i + 1) % size) == 0) {
+//				matrix2D[i / size] = temp;
+//				if (i + 1 < linearMatrix.length)
+//					temp = new int[size];
+//				else
+//					temp = new int[0];
 //			}
-//			matrix2D[x][y] = linearMatrix[num];
-//			// System.out.println("num [" + num + "]---[" + x + "," + y + "]");
-//
 //		}
-
-		int[] temp = new int[size];
-		int[][] matrix2D = new int[numRows][size];
-
-		for (int i = 0; i < linearMatrix.length; i++) {
-			temp[i % size] = linearMatrix[i];
-
-			// this means the line is over
-			if (((i + 1) % size) == 0) {
-				matrix2D[i / size] = temp;
-				if (i + 1 < linearMatrix.length)
-					temp = new int[size];
-				else
-					temp = new int[0];
-			}
-		}
-
-		// If last group doesn't have enough
-		// elements then add 0 to it
-		if (temp.length != 0) {
-			int a = temp.length;
-			while (a != size) {
-				temp[a] = 0;
-				a++;
-			}
-			matrix2D[numRows - 1] = temp;
-		}
-
-		return matrix2D;
-	}
+//
+//		// If last group doesn't have enough
+//		// elements then add 0 to it
+//		if (temp.length != 0) {
+//			int a = temp.length;
+//			while (a != size) {
+//				temp[a] = 0;
+//				a++;
+//			}
+//			matrix2D[numRows - 1] = temp;
+//		}
+//
+//		return matrix2D;
+//	}
 
 	public String printPrettyMatrix(final int[][] matrix2D, final String title) {
 
@@ -149,16 +134,37 @@ public class GridTools {
 		List<Integer> intList = new ArrayList<>(cols);
 		for (int[] row : matrix2D) {
 			intList.addAll(IntStream.of(row).boxed().collect(Collectors.toList()));
-//			for (int col : row) {
-//				String rowStr = String.format(STR_MATRIX_TEMPLATE, col);
-//				str.append(rowStr);
-//			}
-//			str.append("|\n");
 			str.append(String.format(STR_MATRIX_TEMPLATE, intList.toArray()));
 			intList.clear();
 		}
 		str.append(lineSeparator);
 		return str.toString();
+	}
+
+	public List<Integer> transformArrayToList(int[] arr) {
+		List<Integer> listInt = IntStream.of(arr).boxed().collect(Collectors.toCollection(ArrayList::new));
+		return listInt;
+	}
+
+	public static int[] parseStringToIntArray(final String arrStr) {
+		List<String> list = Arrays.asList(arrStr.split(","));
+		return list.stream().mapToInt(val -> Integer.valueOf(val.trim())).toArray();
+	}
+
+	public static int calcNumRowsFor2dMatrix(final int arrLength, final int numcols) {
+		int resto = arrLength % numcols;
+		return arrLength / numcols + (resto == 0 ? 0 : 1);
+	}
+
+	public static int[][] transform1DArrayTo2D(final int[] arr, final int numCols) {
+		// row count
+		int m = calcNumRowsFor2dMatrix(arr.length, numCols);
+		// last row length
+		int lastRow = arr.length % numCols == 0 ? numCols : arr.length % numCols;
+		return IntStream.range(0, m)
+				.mapToObj(
+						i -> IntStream.range(0, i < m - 1 ? numCols : lastRow).map(j -> arr[j + i * numCols]).toArray())
+				.toArray(int[][]::new);
 	}
 
 }

@@ -9,8 +9,8 @@ import com.example.sunspotanalysertest.apirest.dto.GridDTO;
 import com.example.sunspotanalysertest.apirest.dto.ScoresDTO;
 import com.example.sunspotanalysertest.engine.GridTools;
 import com.example.sunspotanalysertest.mappers.GridMapper;
+import com.example.sunspotanalysertest.persistence.GridEntity;
 import com.example.sunspotanalysertest.persistence.GridRepository;
-import com.example.sunspotanalysertest.persistence.GridsEntity;
 
 @Service
 public class GridService {
@@ -24,7 +24,7 @@ public class GridService {
 	@Autowired
 	private GridMapper gridMapper;
 
-	public GridsEntity addGrid(GridDTO dto) {
+	public GridEntity addGrid(GridDTO dto) {
 
 		return gridRepository.save(gridMapper.convertToEntity(dto));
 
@@ -33,14 +33,11 @@ public class GridService {
 	public ScoresDTO findById(long id) {
 
 		// find Grid data
-		Optional<GridsEntity> gridsEntity = gridRepository.findById(id);
+		Optional<GridEntity> gridEntity = gridRepository.findById(id);
 
 		ScoresDTO scoresDTO = ScoresDTO.builder().build();
 		// calculates scores if entity exists
-		gridsEntity.ifPresent((ent) -> {
-			// System.out.println(ent.toString());
-			scoresDTO.setScores(gridTools.calculateScores(ent));
-		});
+		gridEntity.ifPresent(ent -> scoresDTO.setScores(gridTools.calculateScores(ent, true)));
 
 		return scoresDTO;
 	}

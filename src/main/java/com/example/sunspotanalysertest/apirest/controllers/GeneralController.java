@@ -37,7 +37,7 @@ public class GeneralController {
 		return new ResponseEntity<>(scores, (scores.getScores().isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK));
 	}
 
-	@PostMapping("/sun-spot-analyser-api/grid")
+	@PostMapping("/grid")
 	public ResponseEntity<Object> addGrid(@RequestBody(required = true) GridDTO gridDTO) {
 		Long id = gridService.addGrid(gridDTO).getId();
 		HashMap<String, Long> response = new HashMap<>();

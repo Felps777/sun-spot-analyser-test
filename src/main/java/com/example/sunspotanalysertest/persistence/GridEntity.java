@@ -27,7 +27,7 @@ import lombok.Setter;
 @Setter(value = AccessLevel.PACKAGE)
 @Getter
 @Table(name = "Grids", uniqueConstraints = { @UniqueConstraint(columnNames = { "id" }) })
-public class GridsEntity implements Serializable {
+public class GridEntity implements Serializable {
 
 	private static final long serialVersionUID = -6954098001221654907L;
 
@@ -50,9 +50,9 @@ public class GridsEntity implements Serializable {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof GridsEntity))
+		if (!(o instanceof GridEntity))
 			return false;
-		GridsEntity grid = (GridsEntity) o;
+		GridEntity grid = (GridEntity) o;
 		return id != null && id.equals(grid.getId());
 	}
 
