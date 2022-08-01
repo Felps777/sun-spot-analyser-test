@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,8 +37,8 @@ class GridToolsTest {
 	@ParameterizedTest
 	@ValueSource(strings = { "1,2,3,4,5", "1,2,3,4,5,6,7,8,9" })
 	void testCalculateScores(String inputArrayValuesSequence) {
-		int[] linearMatrix = Arrays.asList(inputArrayValuesSequence.split(",")).stream()
-				.mapToInt(val -> Integer.valueOf(val.trim())).toArray();
+
+		int[] linearMatrix = GridTools.parseStringToIntArray(inputArrayValuesSequence);
 
 		GridEntity mockGridEntity = GridEntity.builder().id(ID_1).size(NUM_COLS_3).linearMatrix(linearMatrix).build();
 		List<ScoreDTO> mockedListScoreDto = new ArrayList<>();
@@ -65,6 +66,32 @@ class GridToolsTest {
 
 		assertEquals(expectedRows, numRows);
 
+	}
+
+	@Test
+	void testPrintPrttyMatrix() {
+
+		int[][] inputMatrix2D = new int[][] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } };
+		String dummyTitle = "DummyTitle";
+
+		String mtx = Arrays.deepToString(inputMatrix2D);
+		mtx = mtx.substring(1, mtx.length() - 1);
+		mtx = mtx.replaceAll("], ", "]");
+		mtx = mtx.replaceAll("]", ("]" + System.getProperty("line.separator")));
+
+		int cols = 3;
+		String lineSeparator = "-".repeat(cols + dummyTitle.length()).concat("\n");
+		StringBuilder str = new StringBuilder();
+		str.append(lineSeparator);
+		str.append(" ".concat(dummyTitle).concat(" \n"));
+		str.append(lineSeparator);
+		str.append(mtx);
+		str.append(lineSeparator);
+
+		String result = gridTools.printPrettyMatrix(inputMatrix2D, dummyTitle);
+		String expectedMatrix = str.toString();
+		// assertions
+		assertEquals(expectedMatrix, result);
 	}
 
 	@ParameterizedTest

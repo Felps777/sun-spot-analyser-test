@@ -16,15 +16,10 @@ public class TestObjectsFactory {
 		// based on an array of 1,2,3,4,5
 		// score values a correct following the calculation rules
 		ScoreDTO scoreDTO00 = ScoreDTO.builder().x(0).y(0).score(12).build();
-		ScoreDTO scoreDTO01 = ScoreDTO.builder().x(0).y(1).score(21).build();
-		ScoreDTO scoreDTO02 = ScoreDTO.builder().x(0).y(2).score(16).build();
-		ScoreDTO scoreDTO10 = ScoreDTO.builder().x(1).y(0).score(27).build();
-		ScoreDTO scoreDTO11 = ScoreDTO.builder().x(1).y(1).score(45).build();
-
-		// considering there is not input valor for the 6th element, by default is is
-		// considered = 0. So the calculations are done normally for it.
-		// in this sequence it is 16
-		ScoreDTO scoreDTO12 = ScoreDTO.builder().x(1).y(2).score(16).build();
+		ScoreDTO scoreDTO01 = ScoreDTO.builder().x(0).y(1).score(15).build();
+		ScoreDTO scoreDTO02 = ScoreDTO.builder().x(0).y(2).score(10).build();
+		ScoreDTO scoreDTO10 = ScoreDTO.builder().x(1).y(0).score(12).build();
+		ScoreDTO scoreDTO11 = ScoreDTO.builder().x(1).y(1).score(15).build();
 
 		List<ScoreDTO> listScoreDto = new ArrayList<>();
 		listScoreDto.add(scoreDTO00);
@@ -32,7 +27,6 @@ public class TestObjectsFactory {
 		listScoreDto.add(scoreDTO02);
 		listScoreDto.add(scoreDTO10);
 		listScoreDto.add(scoreDTO11);
-		listScoreDto.add(scoreDTO12);
 
 		return listScoreDto;
 	}
